@@ -1,7 +1,11 @@
 { Vec2, Vec3, Vec4, Mat4, Ray } = require('pex-geom')
 
 class OrthographicCamera
-  constructor: (l, r, b, t, near, far, position, target, up) ->
+  constructor: (x, y, width, height, near, far, position, target, up) ->
+    l = x
+    r = x + width
+    t = y
+    b = y + height
     @left = l
     @right = r
     @bottom = b
