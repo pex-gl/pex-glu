@@ -1,4 +1,4 @@
-extend = require('extend')
+merge = require('merge')
 { Context } = require('pex-glu')
 { Vec3, Quat, Mat4, BoundingBox } = require('pex-geom')
 RenderableGeometry = require('./RenderableGeometry')
@@ -6,7 +6,7 @@ RenderableGeometry = require('./RenderableGeometry')
 class Mesh
   constructor : (geometry, material, options) ->
     @gl = Context.currentContext
-    @geometry = extend(geometry, RenderableGeometry)
+    @geometry = merge(geometry, RenderableGeometry)
     @material = material
 
     options = options or {}
