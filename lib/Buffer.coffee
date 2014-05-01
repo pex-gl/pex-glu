@@ -1,6 +1,6 @@
-{ Context } = require('pex-glu')
 { Vec2, Vec3, Vec4, Edge, Face3, Face4, FacePolygon } = require('pex-geom')
 { Color } = require('pex-color')
+Context = require('./Context')
 
 hasProperties = (obj, list) ->
   for prop in list
