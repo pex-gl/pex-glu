@@ -1,6 +1,6 @@
 merge = require('merge')
-{ Context } = require('pex-glu')
 { Vec3, Quat, Mat4, BoundingBox } = require('pex-geom')
+Context = require('./Context')
 RenderableGeometry = require('./RenderableGeometry')
 
 class Mesh
@@ -42,7 +42,7 @@ class Mesh
     if @geometry.faces && @geometry.faces.length > 0 && @primitiveType != @gl.LINES
       @gl.bindBuffer(@gl.ELEMENT_ARRAY_BUFFER, @geometry.faces.buffer.handle)
       @gl.drawElements(@primitiveType, @geometry.faces.buffer.dataBuf.length, @gl.UNSIGNED_SHORT, 0)
-    else if @geometry.edges && @primitiveType == @gl.LINES
+    else if @geometry.edges && this.geometry.edges.length > 0 && @primitiveType == @gl.LINES
       @gl.bindBuffer(@gl.ELEMENT_ARRAY_BUFFER, @geometry.edges.buffer.handle)
       @gl.drawElements(@primitiveType, @geometry.edges.buffer.dataBuf.length, @gl.UNSIGNED_SHORT, 0)
     else if @geometry.vertices
