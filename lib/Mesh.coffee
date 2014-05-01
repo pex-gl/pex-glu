@@ -39,7 +39,7 @@ class Mesh
 
     @bindAttribs()
 
-    if @geometry.faces && @geometry.faces.length > 0 && @primitiveType != @gl.LINES
+    if @geometry.faces && @geometry.faces.length > 0 && @primitiveType != @gl.LINES && @primitiveType != @gl.POINTS
       @gl.bindBuffer(@gl.ELEMENT_ARRAY_BUFFER, @geometry.faces.buffer.handle)
       @gl.drawElements(@primitiveType, @geometry.faces.buffer.dataBuf.length, @gl.UNSIGNED_SHORT, 0)
     else if @geometry.edges && this.geometry.edges.length > 0 && @primitiveType == @gl.LINES
