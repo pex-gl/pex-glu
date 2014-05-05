@@ -8,7 +8,7 @@ class Arcball
     @radius = Math.min(window.width/2, window.height/2) * 2
     @center = Vec2.create(window.width/2, window.height/2)
     @currRot = Quat.create()
-    @currRot.setAxisAngle(Vec3.create(0, 1, 0), 180)
+    @currRot.setAxisAngle(Vec3.create(0, 1, 0), 0)
     @clickRot = Quat.create()
     @dragRot = Quat.create()
     @clickPos = Vec3.create()
@@ -24,7 +24,8 @@ class Arcball
     @addEventHanlders()
 
   setOrientation: (dir) ->
-    @currRot.setDirection(dir.dup().scale(-1))
+    @currRot.setDirection(dir)
+    @currRot.w *= -1
     @updateCamera()
     return this
 
@@ -49,7 +50,7 @@ class Arcball
       @updateCamera()
 
   mouseToSphere: (x, y) ->
-    v = Vec3.create((x - @center.x) / @radius, -(y - @center.y) / @radius, 0)
+    v = Vec3.create((x - @center.x) / @radius, (y - @center.y) / @radius, 0)
 
     dist = v.x * v.x + v.y * v.y
     if dist > 1
@@ -67,17 +68,17 @@ class Arcball
     @dragPos = @mouseToSphere(x, y)
     @rotAxis.asCross(@clickPos, @dragPos)
     theta = @clickPos.dot(@dragPos)
-    @dragRot.set(@rotAxis.x, -@rotAxis.y, @rotAxis.z, theta)
+    @dragRot.set(@rotAxis.x, @rotAxis.y, @rotAxis.z, theta)
     @currRot.asMul(@dragRot, @clickRot)
     @updateCamera()
 
   updateCamera: () ->
     #Based on [apply-and-arcball-rotation-to-a-camera](http://forum.libcinder.org/topic/apply-and-arcball-rotation-to-a-camera) on Cinder Forum.
     q = @currRot.clone()
-
+    q.w *= -1
     target = @target
     offset = Vec3.create(0, 0, @distance).transformQuat(q)
-    eye = Vec3.create().asSub(target, offset)
+    eye = Vec3.create().asAdd(target, offset)
     up = Vec3.create(0, 1, 0).transformQuat(q)
     @camera.lookAt(target, eye, up)
 
