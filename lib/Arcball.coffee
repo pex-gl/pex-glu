@@ -3,9 +3,6 @@
 
 class Arcball
   constructor: (window, camera, distance) ->
-    @distance = distance || 2
-    @minDistance = distance/2 || 0.3
-    @maxDistance = distance*2 || 5
     @camera = camera
     @window = window
     @radius = Math.min(window.width/2, window.height/2) * 2
@@ -19,10 +16,19 @@ class Arcball
     @rotAxis = Vec3.create()
     @allowZooming = true
     @enabled = true
+    @target = Vec3.create(0, 0, 0)
+    @setDistance(distance || 2)
 
     @updateCamera()
 
     @addEventHanlders()
+
+  setOrientation: (pos) ->
+    dir = Vec3.create().asSub(pos, @target)
+    @currRot.setDirection(dir.normalize())
+    @currRot.w *= -1
+    @updateCamera()
+    return this
 
   addEventHanlders: () ->
     @window.on 'leftMouseDown', (e) =>
@@ -67,7 +73,7 @@ class Arcball
     q = @currRot.clone()
     q.w *= -1
 
-    target = @target || Vec3.create(0, 0, 0)
+    target = @target
     offset = Vec3.create(0, 0, @distance).transformQuat(q)
     eye = Vec3.create().asSub(target, offset)
     up = Vec3.create(0, 1, 0).transformQuat(q)
