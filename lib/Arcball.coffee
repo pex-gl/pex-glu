@@ -32,6 +32,7 @@ class Arcball
   setPosition: (pos) ->
     dir = Vec3.create().asSub(pos, @target)
     @setOrientation(dir.dup().normalize())
+    @setDistance(dir.length())
     @updateCamera()
 
   addEventHanlders: () ->
