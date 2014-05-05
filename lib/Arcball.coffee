@@ -24,15 +24,13 @@ class Arcball
     @addEventHanlders()
 
   setOrientation: (dir) ->
-    @currRot.setDirection(dir)
-    @currRot.w *= -1
+    @currRot.setDirection(dir.dup().scale(-1))
     @updateCamera()
     return this
 
   setPosition: (pos) ->
     dir = Vec3.create().asSub(pos, @target)
-    @setDistance(dir.length())
-    @setOrientation(dir)
+    @setOrientation(dir.dup().normalize())
     @updateCamera()
 
   addEventHanlders: () ->
@@ -69,14 +67,13 @@ class Arcball
     @dragPos = @mouseToSphere(x, y)
     @rotAxis.asCross(@clickPos, @dragPos)
     theta = @clickPos.dot(@dragPos)
-    @dragRot.set(@rotAxis.x, @rotAxis.y, @rotAxis.z, theta)
+    @dragRot.set(@rotAxis.x, -@rotAxis.y, @rotAxis.z, theta)
     @currRot.asMul(@dragRot, @clickRot)
     @updateCamera()
 
   updateCamera: () ->
     #Based on [apply-and-arcball-rotation-to-a-camera](http://forum.libcinder.org/topic/apply-and-arcball-rotation-to-a-camera) on Cinder Forum.
     q = @currRot.clone()
-    q.w *= -1
 
     target = @target
     offset = Vec3.create(0, 0, @distance).transformQuat(q)
