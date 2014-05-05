@@ -23,12 +23,17 @@ class Arcball
 
     @addEventHanlders()
 
-  setOrientation: (pos) ->
-    dir = Vec3.create().asSub(pos, @target)
-    @currRot.setDirection(dir.normalize())
+  setOrientation: (dir) ->
+    @currRot.setDirection(dir)
     @currRot.w *= -1
     @updateCamera()
     return this
+
+  setPosition: (pos) ->
+    dir = Vec3.create().asSub(pos, @target)
+    @setDistance(dir.length())
+    @setOrientation(dir)
+    @updateCamera()
 
   addEventHanlders: () ->
     @window.on 'leftMouseDown', (e) =>
