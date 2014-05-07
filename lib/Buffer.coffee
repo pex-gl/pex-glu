@@ -84,7 +84,7 @@ class Buffer
       for face in data
         numIndices += 3 if face.length == 3
         numIndices += 6 if face.length == 4
-        throw 'FacePolygons are not supported in RenderableGeometry Buffers' if face.length > 4
+        throw 'FacePolygons ' + face.length + ' + are not supported in RenderableGeometry Buffers' if face.length > 4
       if !@dataBuf || @dataBuf.length != numIndices
         @dataBuf = new @type(numIndices)
         @elementSize = 1
