@@ -22,6 +22,7 @@ class Mesh
 
     @projectionMatrix = Mat4.create()
     @viewMatrix = Mat4.create()
+    @invViewMatrix = Mat4.create()
     @modelWorldMatrix = Mat4.create()
     @modelViewMatrix = Mat4.create()
     @rotationMatrix = Mat4.create()
@@ -126,6 +127,9 @@ class Mesh
       @viewMatrix
         .copy(camera.getViewMatrix())
 
+      @invViewMatrix
+        .copy(camera.getViewMatrix().dup().invert())
+
       @modelViewMatrix
         .copy(camera.getViewMatrix())
         .mul(@modelWorldMatrix)
@@ -145,6 +149,7 @@ class Mesh
 
     materialUniforms.projectionMatrix = @projectionMatrix if programUniforms.projectionMatrix
     materialUniforms.viewMatrix = @viewMatrix if programUniforms.viewMatrix
+    materialUniforms.invViewMatrix = @invViewMatrix if programUniforms.invViewMatrix
     materialUniforms.modelWorldMatrix = @modelWorldMatrix if programUniforms.modelWorldMatrix
     materialUniforms.modelViewMatrix = @modelViewMatrix if programUniforms.modelViewMatrix
     materialUniforms.normalMatrix = @normalMatrix if programUniforms.normalMatrix
