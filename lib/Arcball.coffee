@@ -23,6 +23,10 @@ class Arcball
 
     @addEventHanlders()
 
+  setTarget: (target) ->
+    @target.setVec3(target)
+    @updateCamera()
+
   setOrientation: (dir) ->
     @currRot.setDirection(dir)
     @currRot.w *= -1
