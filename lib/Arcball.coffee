@@ -18,7 +18,6 @@ class Arcball
     @rotAxis = Vec3.create()
     @allowZooming = true
     @enabled = true
-    @target = Vec3.create(0, 0, 0)
     @clickTarget = Vec3.create(0, 0, 0)
     @setDistance(distance || 2)
 
@@ -27,8 +26,7 @@ class Arcball
     @addEventHanlders()
 
   setTarget: (target) ->
-    @target.setVec3(target)
-    @updateCamera()
+    @camera.setTarget(target)
 
   setOrientation: (dir) ->
     @currRot.setDirection(dir)
@@ -37,7 +35,7 @@ class Arcball
     return this
 
   setPosition: (pos) ->
-    dir = Vec3.create().asSub(pos, @target)
+    dir = Vec3.create().asSub(pos, @camera.getTarget())
     @setOrientation(dir.dup().normalize())
     @setDistance(dir.length())
     @updateCamera()
@@ -100,7 +98,7 @@ class Arcball
       @dragPosWorld = @dragPosPlane.dup().transformMat4(invViewMatrix)
 
       @diffWorld = @dragPosWorld.dup().sub(@clickPosWorld)
-      @target = @clickTarget.dup().sub(@diffWorld)
+      @camera.setTarget(@clickTarget.dup().sub(@diffWorld))
       @updateCamera()
     else
       @dragPos = @mouseToSphere(x, y)
@@ -114,7 +112,7 @@ class Arcball
     #Based on [apply-and-arcball-rotation-to-a-camera](http://forum.libcinder.org/topic/apply-and-arcball-rotation-to-a-camera) on Cinder Forum.
     q = @currRot.clone()
     q.w *= -1
-    target = @target
+    target = @camera.getTarget()
     offset = Vec3.create(0, 0, @distance).transformQuat(q)
     eye = Vec3.create().asAdd(target, offset)
     up = Vec3.create(0, 1, 0).transformQuat(q)
