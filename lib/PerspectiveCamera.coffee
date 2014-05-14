@@ -87,6 +87,22 @@ class PerspectiveCamera
     out.y *= windowHeight
     out
 
+  getViewRay: (x, y, windowWidth, windowHeight) ->
+    px = (x - windowWidth/2) / (windowWidth/2)
+    py = -(y - windowHeight/2) / (windowHeight/2)
+
+    hNear = 2 * Math.tan(@getFov() / 180*Math.PI / 2) * @getNear()
+    wNear = hNear * @getAspectRatio()
+
+    px *= wNear / 2
+    py *= hNear / 2
+
+    vOrigin = new Vec3(0, 0, 0)
+    vTarget = new Vec3(px, py, -this.getNear())
+    vDirection = vTarget.dup().sub(vOrigin).normalize()
+
+    new Ray(vOrigin, vDirection)
+
   ## getWorldRay (x, y, windowWidth, windowHeight)
   #Gets ray in world coordinates for a x,y screen position
   #

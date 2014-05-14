@@ -1,5 +1,5 @@
 
-{ Vec2, Vec3, Vec4, Quat, Mat4 } = require('pex-geom')
+{ Vec2, Vec3, Vec4, Quat, Mat4, Plane } = require('pex-geom')
 
 class Arcball
   constructor: (window, camera, distance) ->
@@ -12,11 +12,14 @@ class Arcball
     @clickRot = Quat.create()
     @dragRot = Quat.create()
     @clickPos = Vec3.create()
+    @clickPosWindow = Vec2.create()
     @dragPos = Vec3.create()
+    @dragPosWindow = Vec2.create()
     @rotAxis = Vec3.create()
     @allowZooming = true
     @enabled = true
     @target = Vec3.create(0, 0, 0)
+    @clickTarget = Vec3.create(0, 0, 0)
     @setDistance(distance || 2)
 
     @updateCamera()
@@ -42,11 +45,14 @@ class Arcball
   addEventHanlders: () ->
     @window.on 'leftMouseDown', (e) =>
       return if e.handled || !@enabled
-      @down(e.x, @window.height - e.y) #we flip the y coord to make rotating camera work
+      @down(e.x, e.y, e.shift) #we flip the y coord to make rotating camera work
+
+    @window.on 'leftMouseUp', (e) =>
+      @up(e.x, e.y, e.shift) #we flip the y coord to make rotating camera work
 
     @window.on 'mouseDragged', (e) =>
       return if e.handled || !@enabled
-      @drag(e.x, @window.height - e.y) #we flip the y coord to make rotating camera work
+      @drag(e.x, e.y, e.shift) #we flip the y coord to make rotating camera work
 
     @window.on 'scrollWheel', (e) =>
       return if e.handled || !@enabled
@@ -55,6 +61,7 @@ class Arcball
       @updateCamera()
 
   mouseToSphere: (x, y) ->
+    y = @window.height - y #flip y axis as positive Y in the world goes up but in mouse coords it goes down
     v = Vec3.create((x - @center.x) / @radius, (y - @center.y) / @radius, 0)
 
     dist = v.x * v.x + v.y * v.y
@@ -64,17 +71,43 @@ class Arcball
       v.z = Math.sqrt( 1.0 - dist )
     v
 
-  down: (x, y) ->
+  down: (x, y, shift) ->
     @clickPos = @mouseToSphere(x, y)
     @clickRot.copy(@currRot)
     @updateCamera()
+    if shift
+      @clickPosWindow.set(x, y)
+      target = @camera.getTarget()
+      @clickTarget = target.dup();
+      targetInViewSpace = target.dup().transformMat4(@camera.getViewMatrix())
+      @panPlane = new Plane(targetInViewSpace, new Vec3(0, 0, 1))
+      @clickPosPlane = @panPlane.intersectRay(@camera.getViewRay(@clickPosWindow.x, @clickPosWindow.y, @window.width, @window.height))
+      @dragPosPlane = @panPlane.intersectRay(@camera.getViewRay(@dragPosWindow.x, @dragPosWindow.y, @window.width, @window.height))
+    else
+      @panPlane = null
 
-  drag: (x, y) ->
-    @dragPos = @mouseToSphere(x, y)
-    @rotAxis.asCross(@clickPos, @dragPos)
-    theta = @clickPos.dot(@dragPos)
-    @dragRot.set(@rotAxis.x, @rotAxis.y, @rotAxis.z, theta)
-    @currRot.asMul(@dragRot, @clickRot)
+  up: (x, y, shift) ->
+    @panPlane = null
+
+  drag: (x, y, shift) ->
+    if shift && @panPlane
+      @dragPosWindow.set(x, y)
+      @clickPosPlane = @panPlane.intersectRay(@camera.getViewRay(@clickPosWindow.x, @clickPosWindow.y, @window.width, @window.height))
+      @dragPosPlane = @panPlane.intersectRay(@camera.getViewRay(@dragPosWindow.x, @dragPosWindow.y, @window.width, @window.height))
+
+      invViewMatrix = @camera.getViewMatrix().dup().invert()
+      @clickPosWorld = @clickPosPlane.dup().transformMat4(invViewMatrix)
+      @dragPosWorld = @dragPosPlane.dup().transformMat4(invViewMatrix)
+
+      @diffWorld = @dragPosWorld.dup().sub(@clickPosWorld)
+      @target = @clickTarget.dup().sub(@diffWorld)
+      @updateCamera()
+    else
+      @dragPos = @mouseToSphere(x, y)
+      @rotAxis.asCross(@clickPos, @dragPos)
+      theta = @clickPos.dot(@dragPos)
+      @dragRot.set(@rotAxis.x, @rotAxis.y, @rotAxis.z, theta)
+      @currRot.asMul(@dragRot, @clickRot)
     @updateCamera()
 
   updateCamera: () ->
