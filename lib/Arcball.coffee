@@ -27,6 +27,7 @@ class Arcball
 
   setTarget: (target) ->
     @camera.setTarget(target)
+    @updateCamera()
 
   setOrientation: (dir) ->
     @currRot.setDirection(dir)
