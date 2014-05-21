@@ -71,6 +71,7 @@ class Arcball
     v
 
   down: (x, y, shift) ->
+    @dragging = true
     @clickPos = @mouseToSphere(x, y)
     @clickRot.copy(@currRot)
     @updateCamera()
@@ -86,9 +87,11 @@ class Arcball
       @panPlane = null
 
   up: (x, y, shift) ->
+    @dragging = false
     @panPlane = null
 
   drag: (x, y, shift) ->
+    if !@dragging then return
     if shift && @panPlane
       @dragPosWindow.set(x, y)
       @clickPosPlane = @panPlane.intersectRay(@camera.getViewRay(@clickPosWindow.x, @clickPosWindow.y, @window.width, @window.height))
