@@ -1,4 +1,5 @@
 module.exports.Context = require('./lib/Context');
+module.exports.Texture = require('./lib/Texture');
 module.exports.Texture2D = require('./lib/Texture2D');
 module.exports.TextureCube = require('./lib/TextureCube');
 module.exports.Program = require('./lib/Program');
